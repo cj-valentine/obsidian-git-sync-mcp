@@ -16,9 +16,9 @@ Seen on a fresh deployment: login and MFA succeeded, the session died at
 
 ## What Changes
 
-- `is_bootstrapped` checks for a configured vault (an entry under
-  `$CONFIG_DIR/sync/`, which `sync-setup` creates) instead of any file in the
-  config dir.
+- `is_bootstrapped` checks for a configured vault
+  (`$CONFIG_DIR/sync/<id>/config.json`, which `sync-setup` writes) instead of
+  any file in the config dir.
 - The spec says "bootstrapped" means `sync-setup` has run, and adds a scenario
   for the login-only state.
 
@@ -36,6 +36,6 @@ _None._
 ## Impact
 
 - `obsidian-sync/entrypoint.sh` — one function.
-- No change for a sidecar that is already bootstrapped: it has a `sync/` entry
+- No change for a sidecar that is already bootstrapped: it has a `sync/` config
   and starts sync as before. The healthcheck already reads `sync/*/sync.log`, so
   the two now agree on where a configured vault lives.

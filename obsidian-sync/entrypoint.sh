@@ -24,12 +24,20 @@ VAULT_PATH="${VAULT_PATH:-/vault}"
 CONFIG_DIR="${HOME:-/home/ob}/.config/obsidian-headless"
 SYNC_POLL_INTERVAL="${SYNC_POLL_INTERVAL:-5}"
 
-# Bootstrapped means sync-setup has run, which creates a per-vault directory
-# under CONFIG_DIR/sync/. Login alone writes only auth_token, so checking for a
+# Bootstrapped means sync-setup has run: it writes CONFIG_DIR/sync/<id>/config.json,
+# the file `ob sync` reads. Login alone writes only auth_token, so checking for a
 # non-empty CONFIG_DIR started sync mid-bootstrap (between `ob login` and
 # `sync-setup`): `ob sync` exited "no sync configuration", the container
 # restarted and the operator's interactive bootstrap session was killed.
-is_bootstrapped() { [ -n "$(ls -A "$CONFIG_DIR/sync" 2>/dev/null)" ]; }
+# Test config.json rather than the directory: sync-setup creates the directory
+# a moment before it writes the file.
+is_bootstrapped() {
+  local f
+  for f in "$CONFIG_DIR"/sync/*/config.json; do
+    [ -f "$f" ] && return 0
+  done
+  return 1
+}
 
 if [ "${1:-}" = "bootstrap" ]; then
   shift               # drop the 'bootstrap' token, forward the rest (e.g. --reset)
@@ -47,12 +55,12 @@ if is_bootstrapped; then
   exec ob sync --path "$VAULT_PATH" --continuous
 fi
 
-echo ">> obsidian-sync is NOT bootstrapped (no config in $CONFIG_DIR)."
+echo ">> obsidian-sync is NOT bootstrapped (no vault configured under $CONFIG_DIR/sync/)."
 echo ">> Run:  docker exec -it <container> bootstrap"
 echo ">> Idling and polling every ${SYNC_POLL_INTERVAL}s; sync starts automatically once you do."
 
-# Poll instead of idling forever: as soon as `bootstrap` writes config into
-# CONFIG_DIR, start continuous sync ourselves -- no manual restart. We never
+# Poll instead of idling forever: as soon as `bootstrap` gets through sync-setup,
+# start continuous sync ourselves -- no manual restart. We never
 # auto-run bootstrap (the explicit-only / TTY caveat above still holds); we only
 # auto-start *sync* once config exists.
 while ! is_bootstrapped; do
