@@ -5,25 +5,16 @@ description = "Git-sync extension for the obsidian-web-mcp server: commits and s
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    # Depend on the upstream server via a commit pin on the fork's main:
-    # main carries the write-listener seam the change-trigger needs (PR #62),
-    # the OAuth protected-resource subpath fix (resource includes VAULT_MCP_PATH,
-    # for strict RFC 9728 clients), and the re-baseline onto upstream. Pinned to a
-    # SHA, not the branch, so builds are reproducible and the Docker layer cache
-    # re-resolves the dep on each bump.
-    # The seam itself HAS landed upstream (PR #62, merged 2026-06-22 as 81b6140);
-    # the fork persists only for the OAuth fix, which cannot move into the
-    # extension because build_app() fails closed on an extension registering a
-    # route under an auth-exempt prefix like /.well-known/*.
-    # 8fabcd4 = upstream cd88fdf + exactly two fork commits, rebased linear
-    # (2026-09-07): 7f17b1a the OAuth fix, 8fabcd4 the fork's own mcp<2 cap.
-    # A rebase rewrites SHAs, so re-pin after one -- the prior pin (cc91cd3)
-    # was left unreachable by any branch and is GC-eligible.
-    # TODO: repin to upstream once that OAuth fix is merged there (PR #75).
-    # Upstream publishes no PyPI package, so the target is a commit pin, not a
-    # release -- and it has merged nothing since 2026-06-26, so do not plan around
-    # this landing soon.
-    "obsidian-web-mcp @ git+https://github.com/jjsmackay/obsidian-web-mcp@8fabcd490d6ad19ee61d37bb3cdf32aee238f690",
+    # Depend on the server via a commit pin on the fork, jjsmackay/obsidian-web-mcp.
+    # The fork's main was re-baselined onto jimprosser/obsidian-web-mcp main
+    # (2026-11-28): da6bcdb is upstream's own commit, zero fork deltas. Everything
+    # the fork used to carry has landed upstream: the write-listener seam (#62),
+    # the OAuth protected-resource subpath fix (#75) and the mcp<2 cap. The pin
+    # stays on the fork so fork-only features can ship before they land upstream.
+    # Pinned to a SHA, not a branch, so builds are reproducible and the Docker
+    # layer cache re-resolves the dep on each bump. A rebase rewrites SHAs, so
+    # re-pin after one.
+    "obsidian-web-mcp @ git+https://github.com/jjsmackay/obsidian-web-mcp@da6bcdbaca5cbc8e3e10b0abecd5446a4aa7e685",
     # Formatting-preserving YAML round-trip for frontmatter stamping: preserves
     # users' quotes, key order, and comments, and (with a quote-strip post-process)
     # emits the Obsidian Linter's unquoted timestamp form so desktop and server
@@ -42,25 +33,6 @@ obsidian-git-sync-mcp = "obsidian_git_sync.main:main"
 # Env-reading git credential helper. The name maps to the ``credential.helper``
 # value ``obsidian-env`` (git prefixes ``git-credential-``); see credential_helper.py.
 git-credential-obsidian-env = "obsidian_git_sync.credential_helper:main"
-
-# Bound the MCP SDK to the major line the upstream server can actually import.
-# server.py imports ``mcp.server.fastmcp.FastMCP``, a module SDK 2.0.0 deleted
-# (FastMCP was renamed MCPServer). The image installs UNLOCKED (.dockerignore
-# excludes uv.lock; the Dockerfile runs ``uv pip install --system .``), so an
-# unbounded resolve ships an image that dies on import.
-#
-# A constraint, not a [project.dependencies] entry: this package imports no mcp
-# symbol -- its whole contact with upstream is obsidian_vault_mcp.{extensions,
-# write_events, server.serve, config} -- so declaring a direct dependency would
-# misstate the graph. A constraint bounds a transitive without claiming it.
-#
-# REDUNDANT-BY-DESIGN as of the cc91cd3 pin, which caps the SDK itself. Kept
-# deliberately as a backstop: TRUE upstream (jimprosser) still declares
-# ``mcp[cli]>=1.9.0`` unbounded, so this survives a repin there before its cap
-# lands (see #74/#68, and issues #69/#71). REMOVE once the pin points at an
-# upstream revision that carries its own cap -- not merely at a fork that does.
-[tool.uv]
-constraint-dependencies = ["mcp<2"]
 
 [build-system]
 requires = ["hatchling"]
