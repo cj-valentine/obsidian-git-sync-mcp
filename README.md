@@ -285,7 +285,7 @@ live lock.
 
 ```bash
 uv sync --extra dev
-uv run pytest
+uv run --extra dev python -m pytest
 ```
 
 This project consumes the upstream `obsidian-web-mcp` server and contributes
@@ -296,7 +296,8 @@ seam (PR #57) and uses the write listener on the `feat/write-listener` branch
 once it lands.
 
 Development is spec-driven via [OpenSpec](https://github.com/Fission-AI/OpenSpec)
-— proposals, designs, and specs live under `openspec/`.
+— proposals, designs, and specs live under `openspec/`. See
+[CONTRIBUTING.md](CONTRIBUTING.md) for the change workflow and PR conventions.
 
 ## Licence
 

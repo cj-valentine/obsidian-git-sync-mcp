@@ -1,0 +1,70 @@
+# Fast gate for every pull request and every push to main: the pytest suite,
+# OpenSpec validation of all specs and changes, and a gitleaks secret scan.
+# Image builds stay in build-containers.yml.
+#
+# No secrets to configure: gitleaks-action needs no licence on a personal-account
+# repo and authenticates with the built-in GITHUB_TOKEN.
+name: checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# A new push to a PR supersedes the run still going for the old head.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # setup-uv stopped publishing floating major tags after v7, so pin the release.
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10.4.0
+        with:
+          enable-cache: true
+          python-version: "3.12"   # matches the mcp image (python:3.12-slim)
+
+      # Needs the dev extra and `python -m`: bare pytest isn't on the path.
+      - name: Run tests
+        run: uv run --extra dev python -m pytest
+
+  openspec:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      # Non-strict: errors fail the job, warnings don't. --strict would also
+      # fail on the placeholder Purpose sections most specs still carry.
+      - name: Validate specs and changes
+        run: npx -y @fission-ai/openspec@1.13.2 validate --all --no-interactive
+
+  gitleaks:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read   # gitleaks-action reads the PR's commit list
+    steps:
+      # Full history so the scan covers every commit in the push or PR range.
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Scan for secrets
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: false

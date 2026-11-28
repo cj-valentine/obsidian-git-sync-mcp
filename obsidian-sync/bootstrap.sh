@@ -77,5 +77,5 @@ fi
 ob sync-status --path "$VAULT_PATH" || true
 
 echo
-echo ">> Bootstrap complete. Restart the sidecar (or redeploy the stack) to begin"
-echo ">> continuous sync."
+echo ">> Bootstrap complete. An idle sidecar starts continuous sync on its next"
+echo ">> poll; a stopped one starts syncing when you start it."

@@ -8,9 +8,6 @@ resolution-markers = [
     "python_full_version < '3.14' and sys_platform != 'win32'",
 ]
 
-[manifest]
-constraints = [{ name = "mcp", specifier = "<2" }]
-
 [[package]]
 name = "annotated-doc"
 version = "0.0.4"
@@ -348,7 +345,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "obsidian-web-mcp", git = "https://github.com/jjsmackay/obsidian-web-mcp?rev=8fabcd490d6ad19ee61d37bb3cdf32aee238f690" },
+    { name = "obsidian-web-mcp", git = "https://github.com/jjsmackay/obsidian-web-mcp?rev=da6bcdbaca5cbc8e3e10b0abecd5446a4aa7e685" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.23" },
     { name = "ruamel-yaml" },
@@ -357,8 +354,8 @@ provides-extras = ["dev"]
 
 [[package]]
 name = "obsidian-web-mcp"
-version = "0.2.0"
-source = { git = "https://github.com/jjsmackay/obsidian-web-mcp?rev=8fabcd490d6ad19ee61d37bb3cdf32aee238f690#8fabcd490d6ad19ee61d37bb3cdf32aee238f690" }
+version = "0.4.0"
+source = { git = "https://github.com/jjsmackay/obsidian-web-mcp?rev=da6bcdbaca5cbc8e3e10b0abecd5446a4aa7e685#da6bcdbaca5cbc8e3e10b0abecd5446a4aa7e685" }
 dependencies = [
     { name = "mcp", extra = ["cli"] },
     { name = "pydantic" },
