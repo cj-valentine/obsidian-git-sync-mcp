@@ -12,9 +12,7 @@
 set -euo pipefail
 VAULT_PATH="${VAULT_PATH:-/vault}"
 
-if [ -n "${SYNC_CONFIGS+x}" ]; then
-  ob sync-config --path "$VAULT_PATH" --configs "$SYNC_CONFIGS"
-fi
-if [ -n "${SYNC_FILE_TYPES+x}" ]; then
-  ob sync-config --path "$VAULT_PATH" --file-types "$SYNC_FILE_TYPES"
-fi
+args=()
+[ -n "${SYNC_CONFIGS+x}" ] && args+=(--configs "$SYNC_CONFIGS")
+[ -n "${SYNC_FILE_TYPES+x}" ] && args+=(--file-types "$SYNC_FILE_TYPES")
+[ "${#args[@]}" -eq 0 ] || ob sync-config --path "$VAULT_PATH" "${args[@]}"

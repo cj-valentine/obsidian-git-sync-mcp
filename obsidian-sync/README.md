@@ -198,12 +198,11 @@ docker exec -it <stack>-obsidian-sync-nested-1 bootstrap   # pick the folder's r
 
 ### Sync settings
 
-For either sidecar. `bootstrap` reads the device name; the other two are
-applied before every `ob sync` start (so a changed value takes effect on
-restart) and by `bootstrap`:
+For either sidecar. `SYNC_CONFIGS` and `SYNC_FILE_TYPES` are applied on every
+sync start (and by `bootstrap`), so a changed value takes effect on restart.
 
 | Variable | Effect |
 |---|---|
-| `SYNC_DEVICE_NAME` | Device name in Sync version history (default `headless`) |
+| `SYNC_DEVICE_NAME` | Device name in Sync version history (default `headless`; read by `bootstrap` only) |
 | `SYNC_CONFIGS` | If set, passed to `ob sync-config --configs` (empty = no settings sync) |
 | `SYNC_FILE_TYPES` | If set, passed to `ob sync-config --file-types` |

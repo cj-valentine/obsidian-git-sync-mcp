@@ -29,13 +29,6 @@ SYNC_POLL_INTERVAL="${SYNC_POLL_INTERVAL:-5}"
 # the same sync/<id>/ layout.
 is_bootstrapped() { compgen -G "$CONFIG_DIR/sync/*/config.json" >/dev/null; }
 
-# Settings first, so sync never starts on defaults (bootstrap writes config.json
-# before it can apply them). A failure exits rather than syncing on the wrong ones.
-start_sync() {
-  sync-settings
-  exec ob sync --path "$VAULT_PATH" --continuous
-}
-
 # A nested sidecar (NESTED_PARENT set) must sit strictly inside the parent vault.
 nested-guard
 
@@ -51,19 +44,20 @@ if [ "$#" -gt 0 ]; then
   exec "$@"
 fi
 
-if is_bootstrapped; then
-  start_sync
+if ! is_bootstrapped; then
+  echo ">> obsidian-sync is NOT bootstrapped (no vault configured under $CONFIG_DIR/sync/)."
+  echo ">> Run:  docker exec -it <container> bootstrap"
+  echo ">> Idling and polling every ${SYNC_POLL_INTERVAL}s; sync starts automatically once you do."
+
+  # Poll instead of idling forever: as soon as `bootstrap` gets through sync-setup,
+  # start continuous sync ourselves -- no manual restart. We never
+  # auto-run bootstrap (the explicit-only / TTY caveat above still holds); we only
+  # auto-start *sync* once config exists.
+  while ! is_bootstrapped; do
+    sleep "$SYNC_POLL_INTERVAL"
+  done
 fi
 
-echo ">> obsidian-sync is NOT bootstrapped (no vault configured under $CONFIG_DIR/sync/)."
-echo ">> Run:  docker exec -it <container> bootstrap"
-echo ">> Idling and polling every ${SYNC_POLL_INTERVAL}s; sync starts automatically once you do."
-
-# Poll instead of idling forever: as soon as `bootstrap` gets through sync-setup,
-# start continuous sync ourselves -- no manual restart. We never
-# auto-run bootstrap (the explicit-only / TTY caveat above still holds); we only
-# auto-start *sync* once config exists.
-while ! is_bootstrapped; do
-  sleep "$SYNC_POLL_INTERVAL"
-done
-start_sync
+# Settings first (fails closed): see sync-settings.
+sync-settings
+exec ob sync --path "$VAULT_PATH" --continuous
