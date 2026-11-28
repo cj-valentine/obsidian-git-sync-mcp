@@ -285,7 +285,7 @@ live lock.
 
 ```bash
 uv sync --extra dev
-uv run pytest
+uv run --extra dev python -m pytest
 ```
 
 This project consumes the upstream `obsidian-web-mcp` server and contributes
