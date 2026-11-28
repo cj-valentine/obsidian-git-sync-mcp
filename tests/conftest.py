@@ -13,6 +13,21 @@ import pytest
 from _helpers import git as _git
 
 
+@pytest.fixture(autouse=True)
+def hermetic_git(monkeypatch):
+    """Keep the host's git config out of the tests.
+
+    Ignores global and system config, and turns off git's guess of an identity
+    from the user name and hostname. Without this the suite passed on a dev box
+    and failed on a CI runner whose hostname gives git no email to guess.
+    """
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", "/dev/null")
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "1")
+    monkeypatch.setenv("GIT_CONFIG_COUNT", "1")
+    monkeypatch.setenv("GIT_CONFIG_KEY_0", "user.useConfigOnly")
+    monkeypatch.setenv("GIT_CONFIG_VALUE_0", "true")
+
+
 @pytest.fixture
 def vault_dir(tmp_path, monkeypatch):
     """A temp vault directory wired into the upstream config (NOT a git repo)."""
@@ -85,6 +100,10 @@ def gitsync_enabled(monkeypatch):
     import obsidian_git_sync.config as gs_config
     monkeypatch.setattr(gs_config, "VAULT_GIT_ENABLED", "true")
     monkeypatch.setattr(gs_config, "VAULT_GIT_REMOTE", "")
+    # Identity via the product's own setting, as a deployment supplies it, so
+    # validate_gitsync() doesn't fall back to the host's git identity.
+    monkeypatch.setattr(gs_config, "VAULT_GIT_GIT_AUTHOR_NAME", "Test Bot")
+    monkeypatch.setattr(gs_config, "VAULT_GIT_GIT_AUTHOR_EMAIL", "bot@example.com")
 
 
 @pytest.fixture
