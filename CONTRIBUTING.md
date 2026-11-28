@@ -29,7 +29,7 @@ PRs are squash-merged, so the title becomes the commit on `main`. Use [Conventio
 - Say what you checked, with numbers (test counts, scenarios run), and what you didn't check or left alone.
 - State merge order or dependencies, e.g. "Best merged after #8".
 - Put any asks at the end, answerable in a word ("Ask: merge?").
-- AI-assisted PRs keep their `Co-Authored-By:` (and any session) trailers in the PR body, because the squash drops branch commit messages.
+- AI-assisted PRs keep their `Co-Authored-By:` trailer in the PR body, because the squash drops branch commit messages. No session URLs (`Claude-Session:` or similar).
 
 ## Tests
 
