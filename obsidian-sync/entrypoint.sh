@@ -24,10 +24,10 @@ VAULT_PATH="${VAULT_PATH:-/vault}"
 CONFIG_DIR="${HOME:-/home/ob}/.config/obsidian-headless"
 SYNC_POLL_INTERVAL="${SYNC_POLL_INTERVAL:-5}"
 
-# Heuristic: ob writes credentials + per-vault state under CONFIG_DIR, so a
-# non-empty dir means login/sync-setup has run. The image pre-creates the dir
-# empty, so "empty" reliably means "not yet bootstrapped".
-is_bootstrapped() { [ -n "$(ls -A "$CONFIG_DIR" 2>/dev/null)" ]; }
+# Bootstrapped = sync-setup has written sync/<id>/config.json. Login alone writes
+# only auth_token, so a non-empty CONFIG_DIR isn't enough. healthcheck.sh reads
+# the same sync/<id>/ layout.
+is_bootstrapped() { compgen -G "$CONFIG_DIR/sync/*/config.json" >/dev/null; }
 
 if [ "${1:-}" = "bootstrap" ]; then
   shift               # drop the 'bootstrap' token, forward the rest (e.g. --reset)
@@ -45,12 +45,12 @@ if is_bootstrapped; then
   exec ob sync --path "$VAULT_PATH" --continuous
 fi
 
-echo ">> obsidian-sync is NOT bootstrapped (no config in $CONFIG_DIR)."
+echo ">> obsidian-sync is NOT bootstrapped (no vault configured under $CONFIG_DIR/sync/)."
 echo ">> Run:  docker exec -it <container> bootstrap"
 echo ">> Idling and polling every ${SYNC_POLL_INTERVAL}s; sync starts automatically once you do."
 
-# Poll instead of idling forever: as soon as `bootstrap` writes config into
-# CONFIG_DIR, start continuous sync ourselves -- no manual restart. We never
+# Poll instead of idling forever: as soon as `bootstrap` gets through sync-setup,
+# start continuous sync ourselves -- no manual restart. We never
 # auto-run bootstrap (the explicit-only / TTY caveat above still holds); we only
 # auto-start *sync* once config exists.
 while ! is_bootstrapped; do
