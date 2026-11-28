@@ -24,20 +24,10 @@ VAULT_PATH="${VAULT_PATH:-/vault}"
 CONFIG_DIR="${HOME:-/home/ob}/.config/obsidian-headless"
 SYNC_POLL_INTERVAL="${SYNC_POLL_INTERVAL:-5}"
 
-# Bootstrapped means sync-setup has run: it writes CONFIG_DIR/sync/<id>/config.json,
-# the file `ob sync` reads. Login alone writes only auth_token, so checking for a
-# non-empty CONFIG_DIR started sync mid-bootstrap (between `ob login` and
-# `sync-setup`): `ob sync` exited "no sync configuration", the container
-# restarted and the operator's interactive bootstrap session was killed.
-# Test config.json rather than the directory: sync-setup creates the directory
-# a moment before it writes the file.
-is_bootstrapped() {
-  local f
-  for f in "$CONFIG_DIR"/sync/*/config.json; do
-    [ -f "$f" ] && return 0
-  done
-  return 1
-}
+# Bootstrapped = sync-setup has written sync/<id>/config.json. Login alone writes
+# only auth_token, so a non-empty CONFIG_DIR isn't enough. healthcheck.sh reads
+# the same sync/<id>/ layout.
+is_bootstrapped() { compgen -G "$CONFIG_DIR/sync/*/config.json" >/dev/null; }
 
 if [ "${1:-}" = "bootstrap" ]; then
   shift               # drop the 'bootstrap' token, forward the rest (e.g. --reset)

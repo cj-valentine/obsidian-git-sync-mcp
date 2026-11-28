@@ -23,6 +23,9 @@ FROM node:22-bookworm-slim
 # Confirmed at build time (obsidian-headless@0.0.14, better-sqlite3 12.11.1): the
 # prebuilt path works, so the toolchain is intentionally omitted to keep the
 # image slim.
+# Bumping this pin: entrypoint.sh (is_bootstrapped) and healthcheck.sh both read
+# ob's private on-disk layout (sync/<id>/config.json, sync/<id>/sync.log).
+# Re-check both against the new version.
 RUN npm install -g obsidian-headless@0.0.14 \
     && npm cache clean --force
 

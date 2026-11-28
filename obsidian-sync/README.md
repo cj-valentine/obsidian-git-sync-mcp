@@ -79,9 +79,8 @@ and keeps the vault in step with Obsidian Sync.
 
 > **Bootstrapping a running idle container auto-starts sync — no restart.** The
 > idle entry point checks every `SYNC_POLL_INTERVAL` seconds (default `5`) for a
-> vault configured by `sync-setup` (`CONFIG_DIR/sync/<id>/config.json`). Login
-> alone doesn't count. Once `docker exec … bootstrap` gets through `sync-setup`,
-> the next poll picks it up and starts continuous sync in place. Set `SYNC_POLL_INTERVAL` to
+> completed bootstrap; once `docker exec … bootstrap` finishes `sync-setup`, the
+> next poll picks it up and starts continuous sync in place. Set `SYNC_POLL_INTERVAL` to
 > tune the cadence. (An explicit restart still works and is harmless.)
 
 ## Health

@@ -14,9 +14,7 @@ auto-run bootstrap: it only auto-starts sync once config exists, preserving the
 explicit-only bootstrap contract (a detected TTY must not trigger an interactive
 login). The existing branches — explicit `bootstrap` arg / `BOOTSTRAP` env,
 explicit passthrough command, and already-bootstrapped → continuous sync — SHALL
-be unchanged. Login alone SHALL NOT count as bootstrapped: `ob login` writes its
-credential into the config dir before `sync-setup` runs, and treating that as
-bootstrapped starts `ob sync` with no vault configured.
+be unchanged.
 
 #### Scenario: Idle entry point begins syncing after bootstrap without a restart
 
