@@ -14,9 +14,13 @@ Changes are spec-driven via [OpenSpec](https://github.com/Fission-AI/OpenSpec). 
 - The `openspec/` tree belongs in the PR.
 - Changes with no behaviour or spec impact (pure docs, CI) may skip the proposal.
 
+## Merging
+
+Squash-merge only; the repo allows nothing else. `main` gets one commit per PR, built from the PR title and body. Branch commits are discarded on merge, so commit as often as you like on your branch and don't tidy its history.
+
 ## Pull request titles
 
-PRs are squash-merged, so the title becomes the commit on `main`. Use [Conventional Commits](https://www.conventionalcommits.org/):
+The title becomes the commit subject on `main`. Use [Conventional Commits](https://www.conventionalcommits.org/):
 
 - `type(scope): summary`: lowercase, imperative, no full stop, 72 characters or fewer.
 - `!` after the type or scope marks a breaking change.
@@ -24,11 +28,13 @@ PRs are squash-merged, so the title becomes the commit on `main`. Use [Conventio
 
 ## Pull request bodies
 
+The body becomes the commit message on `main`, so keep it to what a future reader of `git log` needs.
+
 - Lead with the change. No "This PR" opener, no Summary heading.
 - 3 to 10 bullets: what changed, why, and any spec impact.
 - Say what you checked, with numbers (test counts, scenarios run), and what you didn't check or left alone.
 - State merge order or dependencies, e.g. "Best merged after #8".
-- Put any asks at the end, answerable in a word ("Ask: merge?").
+- Questions for the reviewer and extra context (detailed verification, design working, review back-and-forth) go in a follow-up PR comment, not the body. No "Ask: merge?" line: opening the PR is the ask.
 - AI-assisted PRs keep their `Co-Authored-By:` trailer in the PR body, because the squash drops branch commit messages. No session URLs (`Claude-Session:` or similar).
 
 ## Tests

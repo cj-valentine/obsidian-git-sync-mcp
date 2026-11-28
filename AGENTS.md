@@ -13,7 +13,7 @@ them here.
 Branching, commits, PR titles and bodies: see `CONTRIBUTING.md`. Agent-specific notes:
 - Propose with `/opsx:propose`, not ad-hoc edits. Cycle: `/opsx:propose` → commit → `/opsx:apply` → `/opsx:archive` → commit.
   `/opsx:propose` STOPS at "ready for apply" (generates artifacts, doesn't apply/archive) — continue explicitly.
-- Open the PR with `gh pr create`; merge with `gh pr merge --squash`. Never commit directly to `main`.
+- Open the PR with `gh pr create`; merge with `gh pr merge --squash` (the only method the repo allows). Never commit directly to `main`. The PR body becomes the squash commit message: keep it short and put extra context in a follow-up PR comment.
 - `openspec archive` stamps the archive dir with the host clock (often a day off) — rename the dir to the real date to match siblings.
 - Validator quirk: only a requirement's **first line** is checked for SHALL/MUST; no backticks in requirement headers.
 - `.claude/` is gitignored; regenerate slash commands with `openspec init --tools claude`.
