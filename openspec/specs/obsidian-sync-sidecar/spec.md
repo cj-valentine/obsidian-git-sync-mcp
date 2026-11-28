@@ -329,17 +329,24 @@ with a reason, unless `VAULT_PATH` is an existing directory strictly inside
 - **WHEN** `NESTED_PARENT` is unset
 - **THEN** the entry point and `bootstrap` behave exactly as before
 
-### Requirement: Bootstrap applies optional sync settings
+### Requirement: Sidecar applies optional sync settings
 
 `bootstrap` SHALL use `SYNC_DEVICE_NAME` as the device name, defaulting to
 `headless`. When `SYNC_CONFIGS` or `SYNC_FILE_TYPES` is set, including set to an
-empty value, `bootstrap` SHALL apply it with `ob sync-config` after `sync-setup`.
-When either is unset, `bootstrap` SHALL leave that setting at `ob`'s default.
+empty value, the entry point SHALL apply it with `ob sync-config` before every
+`ob sync` start, and `bootstrap` SHALL apply it after `sync-setup`. If applying
+fails, the entry point SHALL exit without syncing. When either is unset, that
+setting SHALL be left at `ob`'s current value.
 
 #### Scenario: Settings applied when set
 
 - **WHEN** `bootstrap` runs with `SYNC_CONFIGS` set to an empty value
 - **THEN** `ob sync-status` afterwards reports config syncing disabled
+
+#### Scenario: Settings applied before an idle sidecar starts sync
+
+- **WHEN** an idle sidecar with `SYNC_CONFIGS` set detects a completed `sync-setup`
+- **THEN** it applies the setting before starting `ob sync`
 
 #### Scenario: Defaults kept when unset
 

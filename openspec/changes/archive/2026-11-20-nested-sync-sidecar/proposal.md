@@ -28,8 +28,10 @@ config volume, and syncing `.obsidian` settings that belong to the outer vault.
   strictly inside it. An empty subpath can never point a second client at the
   whole vault.
 - `bootstrap` reads three optional variables: `SYNC_DEVICE_NAME` (was hard-coded
-  `headless`), `SYNC_CONFIGS` and `SYNC_FILE_TYPES`, applied with
-  `ob sync-config` after `sync-setup` when set.
+  `headless`), `SYNC_CONFIGS` and `SYNC_FILE_TYPES`. When set, the new
+  `sync-settings` script applies them with `ob sync-config`; the entry point
+  runs it before every `ob sync` start (so an idle sidecar can't start sync on
+  defaults) and `bootstrap` runs it after `sync-setup`.
 
 ## Capabilities
 

@@ -196,9 +196,11 @@ docker exec -it <stack>-obsidian-sync-nested-1 bootstrap   # pick the folder's r
   nothing lost and no ping-pong. Two saves to the same note in the same instant
   can lose one, exactly as plain Sync does without the nested client.
 
-### Bootstrap settings
+### Sync settings
 
-`bootstrap` reads these, for either sidecar:
+For either sidecar. `bootstrap` reads the device name; the other two are
+applied before every `ob sync` start (so a changed value takes effect on
+restart) and by `bootstrap`:
 
 | Variable | Effect |
 |---|---|

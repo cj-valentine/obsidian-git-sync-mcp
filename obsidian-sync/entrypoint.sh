@@ -29,6 +29,13 @@ SYNC_POLL_INTERVAL="${SYNC_POLL_INTERVAL:-5}"
 # the same sync/<id>/ layout.
 is_bootstrapped() { compgen -G "$CONFIG_DIR/sync/*/config.json" >/dev/null; }
 
+# Settings first, so sync never starts on defaults (bootstrap writes config.json
+# before it can apply them). A failure exits rather than syncing on the wrong ones.
+start_sync() {
+  sync-settings
+  exec ob sync --path "$VAULT_PATH" --continuous
+}
+
 # A nested sidecar (NESTED_PARENT set) must sit strictly inside the parent vault.
 nested-guard
 
@@ -45,7 +52,7 @@ if [ "$#" -gt 0 ]; then
 fi
 
 if is_bootstrapped; then
-  exec ob sync --path "$VAULT_PATH" --continuous
+  start_sync
 fi
 
 echo ">> obsidian-sync is NOT bootstrapped (no vault configured under $CONFIG_DIR/sync/)."
@@ -59,4 +66,4 @@ echo ">> Idling and polling every ${SYNC_POLL_INTERVAL}s; sync starts automatica
 while ! is_bootstrapped; do
   sleep "$SYNC_POLL_INTERVAL"
 done
-exec ob sync --path "$VAULT_PATH" --continuous
+start_sync

@@ -12,8 +12,9 @@
 
 ## 2. Bootstrap settings
 
-- [x] 2.1 Read `SYNC_DEVICE_NAME`, `SYNC_CONFIGS` and `SYNC_FILE_TYPES` in
-  `bootstrap.sh`; verify the device name and settings appear in
+- [x] 2.1 Read `SYNC_DEVICE_NAME` in `bootstrap.sh`, and `SYNC_CONFIGS` and
+  `SYNC_FILE_TYPES` in `sync-settings.sh` (run by the entry point before every
+  `ob sync` start and by `bootstrap`); verify the device name and settings appear in
   `ob sync-status` after a real bootstrap, and that unset variables leave the
   defaults alone
 
